@@ -1,0 +1,85 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: minio
+
+spec:
+  replicas: 1
+  serviceName: minio-hl
+  podManagementPolicy: Parallel
+
+  updateStrategy:
+    type: RollingUpdate
+
+  template:
+    spec:
+      serviceAccountName: minio
+      enableServiceLinks: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
+
+      containers:
+        - name: server
+          image: minio-server
+          imagePullPolicy: Always
+
+          args:
+            - server
+
+          env:
+            - name: MINIO_PROMETHEUS_AUTH_TYPE
+              value: "public"
+            - name: MINIO_BROWSER
+              value: "on"
+
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: accesskey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: secretkey
+
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+
+          # resources:
+          #   requests:
+          #     cpu: "0.1"
+          #     memory: "256Mi"
+          #   limits:
+          #     cpu: "0.5"
+          #     memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: http
+
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: http
+
+          volumeMounts:
+            - name: data
+              mountPath: /export
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+
+...
