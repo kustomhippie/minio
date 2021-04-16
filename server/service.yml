@@ -4,8 +4,12 @@ kind: Service
 
 metadata:
   name: minio-server
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 
 spec:
+  publishNotReadyAddresses: true
+
   ports:
     - name: http
       port: 9000
