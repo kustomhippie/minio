@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 
 metadata:
-  name: minio
+  name: minio-server
 
 spec:
   replicas: 1
@@ -15,7 +15,7 @@ spec:
 
   template:
     spec:
-      serviceAccountName: minio
+      serviceAccountName: minio-server
       enableServiceLinks: true
       restartPolicy: Always
       terminationGracePeriodSeconds: 60
@@ -23,7 +23,7 @@ spec:
       containers:
         - name: server
           image: minio-server
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
 
           args:
             - server
@@ -37,12 +37,12 @@ spec:
             - name: MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: minio
+                  name: minio-server
                   key: accesskey
             - name: MINIO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: minio
+                  name: minio-server
                   key: secretkey
 
           ports:
