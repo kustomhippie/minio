@@ -4,11 +4,18 @@ kind: Service
 
 metadata:
   name: minio-server
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: server
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 
 spec:
   publishNotReadyAddresses: true
+
+  selector:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: server
 
   ports:
     - name: http

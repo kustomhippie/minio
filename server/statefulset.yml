@@ -4,6 +4,9 @@ kind: StatefulSet
 
 metadata:
   name: minio-server
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: server
 
 spec:
   replicas: 1
@@ -13,10 +16,19 @@ spec:
   updateStrategy:
     type: RollingUpdate
 
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/name: minio
+
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/name: minio
+
     spec:
-      serviceAccountName: minio-server
-      enableServiceLinks: true
+      enableServiceLinks: false
       restartPolicy: Always
       terminationGracePeriodSeconds: 60
 
@@ -27,6 +39,7 @@ spec:
 
           args:
             - server
+            - /export
 
           env:
             - name: MINIO_PROMETHEUS_AUTH_TYPE
