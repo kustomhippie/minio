@@ -22,7 +22,7 @@ concurrency:
   group: react
 
 jobs:
-  kustomize:
+  execute:
     runs-on: ubuntu-20.04
 
     steps:
